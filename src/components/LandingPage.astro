@@ -368,6 +368,17 @@ const missionLines = t('hero.mission.text').split('\n');
       padding-bottom 320ms ease;
     will-change: min-height, padding-top, padding-bottom;
   }
+  /*
+   * Logo shrink animation.
+   * The logo lives at its full size (h-50 w-50) by default and is reduced to
+   * 6.25rem once the header gains the `.is-scrolled` class (see the rule below
+   * and the scroll script at the bottom of this file).
+   * These transitions only define HOW the change is animated — the actual
+   * target size is set by `.site-header.is-scrolled .site-logo*`.
+   * 320ms ease matches the header's own resize timing so the logo and the
+   * surrounding bar shrink in sync. `will-change` hints the browser to
+   * promote these properties for smoother, GPU-friendly animation.
+   */
   .site-logo-shell,
   .site-logo {
     transition:
@@ -405,56 +416,99 @@ const missionLines = t('hero.mission.text').split('\n');
 </style>
 
 <script>
+  // --- Header & logo shrink-on-scroll -------------------------------------
+  // Cache the elements we interact with. `header` is the sticky top bar whose
+  // `.is-scrolled` class drives the CSS that shrinks the logo and compacts the
+  // bar (see the `.site-header.is-scrolled` rules in the <style> block above).
   const header = document.querySelector<HTMLElement>('[data-site-header]');
   const mobileMenu = document.querySelector<HTMLElement>('[data-mobile-menu]');
   const mobileMenuButton = document.querySelector<HTMLButtonElement>('[data-mobile-menu-button]');
+
+  // Tracks whether the header is currently in its compact (scrolled) state, so
+  // we only toggle the class when the state actually changes.
   let isHeaderCompact = false;
+  // Holds the pending requestAnimationFrame id (0 = none scheduled). Used to
+  // coalesce rapid scroll events into at most one update per frame.
   let headerFrame = 0;
 
   const updateHeader = () => {
     if (!header) return;
 
+    // Hysteresis: the threshold to ENTER compact mode (42px) is higher than the
+    // threshold to LEAVE it (18px). The gap between the two values prevents the
+    // header from flickering back and forth when the user hovers right around a
+    // single boundary. Which threshold applies depends on the current state.
     const shouldBeCompact = isHeaderCompact
-      ? window.scrollY > 18
-      : window.scrollY > 42;
+      ? window.scrollY > 18   // already compact: stay compact until above 18px
+      : window.scrollY > 42;  // expanded: only compact once past 42px
 
+    // Nothing to do if the desired state matches the current one — this avoids
+    // redundant class toggles (and therefore redundant style recalculation).
     if (shouldBeCompact === isHeaderCompact) return;
 
     isHeaderCompact = shouldBeCompact;
+    // Toggling this class is the single trigger for all the scrolled-state CSS:
+    // the bar height, padding, background, shadow, and the logo size.
     header.classList.toggle('is-scrolled', isHeaderCompact);
   };
+
+  // Scroll events can fire many times per frame. Rather than running
+  // updateHeader on every one, we schedule a single update on the next animation
+  // frame and ignore further scroll events until that frame runs. This keeps
+  // scrolling smooth and avoids layout thrashing.
   const scheduleHeaderUpdate = () => {
-    if (headerFrame) return;
+    if (headerFrame) return; // an update is already queued for this frame
 
     headerFrame = window.requestAnimationFrame(() => {
       headerFrame = 0;
       updateHeader();
     });
   };
+  // --- Mobile menu --------------------------------------------------------
+  // Single source of truth for opening/closing the mobile nav. Toggling
+  // `.is-open` drives the menu's CSS show/hide animation, and we keep
+  // `aria-expanded` on the toggle button in sync for screen-reader users.
   const setMobileMenuOpen = (isOpen: boolean) => {
     mobileMenu?.classList.toggle('is-open', isOpen);
     mobileMenuButton?.setAttribute('aria-expanded', String(isOpen));
   };
 
+  // Run once on load so the header is correct if the page is opened already
+  // scrolled (e.g. a refresh partway down, or navigating to an #anchor).
   updateHeader();
+  // `passive: true` tells the browser we never call preventDefault here, so it
+  // can keep scrolling on its own thread for better performance.
   window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
+  // Hamburger button toggles the menu based on its current open/closed state.
   mobileMenuButton?.addEventListener('click', () => {
     setMobileMenuOpen(!mobileMenu?.classList.contains('is-open'));
   });
+  // Tapping any link inside the menu closes it, so the user lands on the target
+  // section instead of being left with the overlay still covering the page.
   mobileMenu?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => setMobileMenuOpen(false));
   });
+  // Escape key closes the menu — a standard accessibility affordance for
+  // dismissible overlays.
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') setMobileMenuOpen(false);
   });
 
+  // --- Scroll-reveal animations -------------------------------------------
+  // Elements with the `.reveal` class start hidden/offset (see the `.reveal`
+  // CSS). When one scrolls into view we add `.visible`, which triggers its
+  // fade-in/slide-up transition. This is far cheaper than a scroll handler
+  // because the browser notifies us only when visibility actually changes.
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
+        // Reveal once it enters the viewport. We intentionally don't remove
+        // `.visible` when it leaves, so each element animates in only once.
         if (entry.isIntersecting) entry.target.classList.add('visible');
       });
     },
-    { threshold: 0.12 }
+    { threshold: 0.12 } // fire when ~12% of the element is visible
   );
+  // Register every reveal target with the observer.
   document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
 </script>
