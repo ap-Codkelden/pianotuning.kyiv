@@ -355,37 +355,46 @@ const missionLines = t('hero.mission.text').split('\n');
   }
   .site-header {
     overflow-anchor: none;
+    /* Promote the header to its own GPU compositing layer so its background
+       and shadow repaints stay isolated from the rest of the page. translateZ
+       is the cross-browser hint for this and helps avoid the flicker/tremor
+       seen on Android when the address bar resizes the viewport mid-scroll. */
+    transform: translateZ(0);
     transition:
       min-height 320ms ease,
       background-color 260ms ease,
       box-shadow 260ms ease;
-    will-change: min-height, background-color, box-shadow;
+    /* Only hint compositable properties. min-height is a layout property and
+       can't be GPU-composited, so listing it in will-change wastes memory and
+       can make things worse — left out deliberately. */
+    will-change: background-color, box-shadow;
   }
   .site-header-inner {
     transition:
       min-height 320ms ease,
       padding-top 320ms ease,
       padding-bottom 320ms ease;
-    will-change: min-height, padding-top, padding-bottom;
   }
   /*
-   * Logo shrink animation.
-   * The logo lives at its full size (h-50 w-50) by default and is reduced to
-   * 6.25rem once the header gains the `.is-scrolled` class (see the rule below
-   * and the scroll script at the bottom of this file).
-   * These transitions only define HOW the change is animated — the actual
-   * target size is set by `.site-header.is-scrolled .site-logo*`.
-   * 320ms ease matches the header's own resize timing so the logo and the
-   * surrounding bar shrink in sync. `will-change` hints the browser to
-   * promote these properties for smoother, GPU-friendly animation.
+   * Logo shrink animation (transform-based).
+   * The logo stays at its full rendered size (h-50 w-50 = 12.5rem) at all
+   * times — we never animate its width/height, because those are layout
+   * properties and animating them forces a reflow of the whole header on every
+   * frame (the main cause of scroll jank/tremor on Android, where the browser
+   * is already reflowing as its address bar collapses).
+   * Instead we shrink it visually with `transform: scale()`, which the browser
+   * can run on the compositor (GPU) without touching layout. 6.25rem / 12.5rem
+   * = 0.5, so the scrolled state scales to half size. `transform-origin: top
+   * center` makes it shrink toward the top of the bar rather than the middle.
+   * `will-change`/`backface-visibility` keep it on its own GPU layer for
+   * smooth, tremor-free animation.
    */
   .site-logo-shell,
   .site-logo {
-    transition:
-      height 320ms ease,
-      width 320ms ease,
-      transform 320ms ease;
-    will-change: height, width, transform;
+    transform-origin: top center;
+    transition: transform 320ms ease;
+    will-change: transform;
+    backface-visibility: hidden;
   }
   .site-header.is-scrolled {
     min-height: 5.5rem;
@@ -399,8 +408,9 @@ const missionLines = t('hero.mission.text').split('\n');
   }
   .site-header.is-scrolled .site-logo-shell,
   .site-header.is-scrolled .site-logo {
-    height: 6.25rem;
-    width: 6.25rem;
+    /* 0.5 == 6.25rem / 12.5rem, matching the previous shrunk size, but done
+       on the compositor instead of via layout-triggering width/height. */
+    transform: scale(0.5);
   }
   .mobile-menu {
     opacity: 0;
@@ -412,6 +422,19 @@ const missionLines = t('hero.mission.text').split('\n');
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
+  }
+  /* Respect users who prefer reduced motion: disable the scroll-driven
+     transitions entirely. This is both an accessibility courtesy and a way to
+     sidestep any residual animation jank for those users. */
+  @media (prefers-reduced-motion: reduce) {
+    .site-header,
+    .site-header-inner,
+    .site-logo-shell,
+    .site-logo,
+    .reveal,
+    .mobile-menu {
+      transition: none !important;
+    }
   }
 </style>
 
