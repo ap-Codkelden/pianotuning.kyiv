@@ -28,6 +28,23 @@ initial scaffold.
   (`https://pianotuningkyiv.pro/…`) instead of relative paths.
 - **Sitemap.** `public/sitemap.xml` now includes the `/en/` route with hreflang
   alternates, not just the root.
+- **Android scroll jank.** The header/logo shrink-on-scroll animation tremored
+  on Android browsers. The logo previously animated `width`/`height` and the bar
+  animated `min-height`/`padding` — all layout properties that force a reflow
+  every frame, colliding with the address-bar resize Android performs while
+  scrolling. The logo now shrinks via a GPU-composited `transform: scale(0.5)`
+  (equivalent to the prior 6.25rem size, safe because the logo is absolutely
+  positioned and never affected layout), the header is isolated onto its own
+  compositing layer with `transform: translateZ(0)`, and `will-change` is
+  trimmed to only compositable properties. A `prefers-reduced-motion` guard
+  disables these transitions for users who request reduced motion.
+
+### Added
+- **Clickable contacts phone number.** The phone number in the contacts card is
+  now a `tel:` link (previously plain text) and is tagged `data-conversion-cta`
+  so it counts toward conversion tracking like the other CTAs.
+- **Source comments.** Documented the logo-shrink CSS and the header
+  scroll/shrink, mobile-menu, and scroll-reveal scripts in `LandingPage.astro`.
 
 ### Changed
 - Both page routes (`src/pages/index.astro`, `src/pages/en/index.astro`) now
@@ -36,7 +53,9 @@ initial scaffold.
   documentation (stack, i18n structure, routing, commands).
 
 ### Notes
-- No changes to visual design, copy, fonts, color palette, or animations.
+- No changes to visual design, copy, fonts, or color palette. Animation timing
+  and appearance are preserved; only the underlying technique changed (see the
+  Android scroll jank fix above).
 - Strict TypeScript (`astro/tsconfigs/strict`) preserved.
 
 ## [0.0.1] - Initial
