@@ -375,15 +375,25 @@ const missionLines = t('hero.mission.text').split('\n');
   .site-header {
     overflow-anchor: none;
     transition:
+      min-height 320ms ease,
       background-color 260ms ease,
       box-shadow 260ms ease;
+    will-change: min-height, background-color, box-shadow;
+  }
+  .site-header-inner {
+    transition:
+      min-height 320ms ease,
+      padding-top 320ms ease,
+      padding-bottom 320ms ease;
+    will-change: min-height, padding-top, padding-bottom;
   }
   .site-logo-shell,
   .site-logo {
     transition:
-      height 260ms ease,
-      width 260ms ease,
-      transform 260ms ease;
+      height 320ms ease,
+      width 320ms ease,
+      transform 320ms ease;
+    will-change: height, width, transform;
   }
   .site-header.is-scrolled {
     min-height: 5.5rem;
@@ -417,8 +427,28 @@ const missionLines = t('hero.mission.text').split('\n');
   const header = document.querySelector<HTMLElement>('[data-site-header]');
   const mobileMenu = document.querySelector<HTMLElement>('[data-mobile-menu]');
   const mobileMenuButton = document.querySelector<HTMLButtonElement>('[data-mobile-menu-button]');
+  let isHeaderCompact = false;
+  let headerFrame = 0;
+
   const updateHeader = () => {
-    header?.classList.toggle('is-scrolled', window.scrollY > 32);
+    if (!header) return;
+
+    const shouldBeCompact = isHeaderCompact
+      ? window.scrollY > 18
+      : window.scrollY > 42;
+
+    if (shouldBeCompact === isHeaderCompact) return;
+
+    isHeaderCompact = shouldBeCompact;
+    header.classList.toggle('is-scrolled', isHeaderCompact);
+  };
+  const scheduleHeaderUpdate = () => {
+    if (headerFrame) return;
+
+    headerFrame = window.requestAnimationFrame(() => {
+      headerFrame = 0;
+      updateHeader();
+    });
   };
   const setMobileMenuOpen = (isOpen: boolean) => {
     mobileMenu?.classList.toggle('is-open', isOpen);
@@ -426,7 +456,7 @@ const missionLines = t('hero.mission.text').split('\n');
   };
 
   updateHeader();
-  window.addEventListener('scroll', updateHeader, { passive: true });
+  window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
   mobileMenuButton?.addEventListener('click', () => {
     setMobileMenuOpen(!mobileMenu?.classList.contains('is-open'));
   });

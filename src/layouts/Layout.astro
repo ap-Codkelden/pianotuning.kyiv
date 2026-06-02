@@ -13,6 +13,24 @@ const { title = 'PianoTuningKyiv', description = 'Налаштування, об
     <meta name="description" content={description} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/pianotuning.svg" />
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=AW-18200322333"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+
+      gtag('js', new Date());
+      gtag('config', 'AW-18200322333');
+    </script>
+    <script is:inline>
+      gtag('event', 'conversion', {
+          'send_to': 'AW-18200322333/5vgXCJaa4LYcEJ3Cy-ZD',
+          'value': 1.0,
+          'currency': 'UAH',
+          'transaction_id': ''
+          // 'new_customer': true /* calculate dynamically, populate with true/false */,
+      });
+</script>
   </head>
   <body>
     <slot />
