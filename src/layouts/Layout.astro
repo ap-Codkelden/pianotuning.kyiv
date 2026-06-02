@@ -11,6 +11,33 @@ const t = useTranslations(lang);
 
 const title = t('meta.title');
 const description = t('meta.description');
+
+const businessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': 'https://pianotuningkyiv.pro/#business',
+  name: 'PianoTuningKyiv',
+  description,
+  url: 'https://pianotuningkyiv.pro/',
+  telephone: '+380957009112',
+  email: 'pianotuning.kyiv@gmail.com',
+  image: 'https://pianotuningkyiv.pro/pianotuning.svg',
+  priceRange: '800–8000 UAH',
+  areaServed: {
+    '@type': 'AdministrativeArea',
+    name: lang === 'uk' ? 'Київ та Київська область' : 'Kyiv & Kyiv region',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Kyiv',
+    addressRegion: 'Kyiv Oblast',
+    addressCountry: 'UA',
+  },
+  sameAs: [
+    'https://t.me/PianoTuningKyiv',
+    'https://wa.me/380957009112',
+  ],
+};
 ---
 <!doctype html>
 <html lang={lang}>
@@ -25,6 +52,8 @@ const description = t('meta.description');
     <link rel="alternate" hreflang="uk" href="https://pianotuningkyiv.pro/" />
     <link rel="alternate" hreflang="en" href="https://pianotuningkyiv.pro/en/" />
     <link rel="alternate" hreflang="x-default" href="https://pianotuningkyiv.pro/" />
+    <!-- LocalBusiness structured data (JSON-LD) -->
+    <script type="application/ld+json" set:html={JSON.stringify(businessSchema)} />
     <!-- Google tag (gtag.js) -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=AW-18200322333"></script>
     <script is:inline>
