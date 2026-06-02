@@ -1,18 +1,30 @@
 ---
+import { useTranslations } from '../i18n/translations';
+import type { Lang } from '../i18n/translations';
+
 interface Props {
-  title?: string;
-  description?: string;
+  lang: Lang;
 }
-const { title = 'PianoTuningKyiv', description = 'Налаштування, обслуговування фортепіано та роялів. Київ та Київська область.' } = Astro.props;
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const title = t('meta.title');
+const description = t('meta.description');
 ---
 <!doctype html>
-<html lang="uk">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
-    <link rel="icon" type="image/svg+xml" href="/pianotuning.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <!-- hreflang tags for SEO (absolute URLs) -->
+    <link rel="alternate" hreflang="uk" href="https://pianotuningkyiv.pro/" />
+    <link rel="alternate" hreflang="en" href="https://pianotuningkyiv.pro/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://pianotuningkyiv.pro/" />
     <!-- Google tag (gtag.js) -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=AW-18200322333"></script>
     <script is:inline>
@@ -22,15 +34,34 @@ const { title = 'PianoTuningKyiv', description = 'Налаштування, об
       gtag('js', new Date());
       gtag('config', 'AW-18200322333');
     </script>
+    <!-- Conversion event fires on contact CTA clicks, not on page load -->
     <script is:inline>
-      gtag('event', 'conversion', {
+      window.reportConversion = function (callback) {
+        var fired = false;
+        gtag('event', 'conversion', {
           'send_to': 'AW-18200322333/5vgXCJaa4LYcEJ3Cy-ZD',
           'value': 1.0,
           'currency': 'UAH',
-          'transaction_id': ''
-          // 'new_customer': true /* calculate dynamically, populate with true/false */,
+          'transaction_id': '',
+          'event_callback': function () {
+            if (!fired && typeof callback === 'function') {
+              fired = true;
+              callback();
+            }
+          }
+        });
+        return false;
+      };
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var ctas = document.querySelectorAll('[data-conversion-cta]');
+        ctas.forEach(function (cta) {
+          cta.addEventListener('click', function () {
+            window.reportConversion();
+          });
+        });
       });
-</script>
+    </script>
   </head>
   <body>
     <slot />

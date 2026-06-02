@@ -1,43 +1,75 @@
-# Astro Starter Kit: Minimal
+# PianoTuningKyiv
 
-```sh
-npm create astro@latest -- --template minimal
-```
+Bilingual (Ukrainian / English) marketing landing page for a piano- and grand-piano-tuning
+service covering Kyiv and the Kyiv region. Statically rendered, no backend — visitors get in
+touch via phone, Telegram, WhatsApp, or email.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Tech stack
 
-## 🚀 Project Structure
+- **Astro 6** — static site generation and routing
+- **Tailwind CSS 4** — styling, via the `@tailwindcss/vite` plugin
+- **TypeScript** — strict mode (`astro/tsconfigs/strict`)
+- Vanilla JS for the scroll-aware header, mobile menu, and scroll-reveal animations
+  (no UI framework)
 
-Inside of your Astro project, you'll see the following folders and files:
+Requires **Node.js ≥ 22.12**.
+
+## Internationalisation
+
+Locales are configured in `astro.config.mjs` with `prefixDefaultLocale: false`:
+
+| Locale        | Route   |
+| :------------ | :------ |
+| `uk` (default)| `/`     |
+| `en`          | `/en/`  |
+
+Content is split into two layers under `src/i18n/`:
+
+- **`translations.ts`** — short UI strings (nav, meta, hero, section headings, footer) as a
+  typed `ui` object. `useTranslations(lang)` returns a `t(key)` helper with fallback to the
+  default locale, then to the raw key.
+- **`content.ts`** — long-form, structured content (services with nested detail blocks,
+  prices, and process steps), retrieved per locale via `getServices(lang)`,
+  `getPrices(lang)`, and `getSteps(lang)`.
+
+To add or change copy, edit these two files — no markup changes are required.
+
+## Project structure
 
 ```text
 /
-├── public/
+├── public/                 # favicons, logo, robots.txt, sitemap.xml
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── assets/             # SVG icons + hero image
+│   ├── components/
+│   │   └── LandingPage.astro   # all page sections (header, main, footer) + scoped style/script
+│   ├── i18n/
+│   │   ├── translations.ts     # short UI strings
+│   │   └── content.ts          # long-form structured content
+│   ├── layouts/
+│   │   └── Layout.astro        # HTML document shell, meta, hreflang, analytics
+│   ├── pages/
+│   │   ├── index.astro         # uk → /
+│   │   └── en/index.astro      # en → /en/
+│   └── styles/
+│       └── global.css          # fonts, CSS vars, base styles
+├── astro.config.mjs
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+`Layout.astro` owns the single HTML document (one `<html>`/`<head>`/`<body>`), sets
+`<html lang>` from the `lang` prop, emits localized `<title>`/`<meta>` and absolute `hreflang`
+links, and loads Google Ads (gtag). The conversion event is gated behind clicks on contact
+CTAs (elements tagged `data-conversion-cta`) rather than firing on page load.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Commands
 
-Any static assets, like images, can be placed in the `public/` directory.
+All commands run from the project root:
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+| Command           | Action                                       |
+| :---------------- | :------------------------------------------- |
+| `npm install`     | Install dependencies                         |
+| `npm run dev`     | Start the dev server at `localhost:4321`     |
+| `npm run build`   | Build the production site to `./dist/`       |
+| `npm run preview` | Preview the production build locally         |
+| `npm run astro`   | Run Astro CLI commands                       |

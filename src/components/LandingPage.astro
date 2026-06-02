@@ -42,22 +42,6 @@ const serviceIcons: Record<ServiceIconType, string> = {
 const missionLines = t('hero.mission.text').split('\n');
 ---
 
-<!doctype html>
-<html lang={lang}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={t('meta.description')} />
-    <title>{t('meta.title')}</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" href="/favicon.ico" />
-    <!-- hreflang tags for SEO -->
-    <link rel="alternate" hreflang="uk" href="/" />
-    <link rel="alternate" hreflang="en" href="/en/" />
-    <link rel="alternate" hreflang="x-default" href="/" />
-  </head>
-  <body>
-
   <!-- HEADER -->
   <header data-site-header class="site-header sticky top-0 z-30 min-h-50 border-b border-stone-900/10 bg-[#f7f1e8]/50 backdrop-blur">
     <div class="site-header-inner relative mx-auto flex min-h-50 max-w-7xl flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between md:px-8">
@@ -91,7 +75,7 @@ const missionLines = t('hero.mission.text').split('\n');
 
       <!-- Right: CTA + lang switcher -->
       <div class="ml-auto hidden items-center gap-2 lg:flex">
-        <a href={phoneHref} class="inline-flex h-10 w-42 shrink-0 items-center justify-center rounded-full bg-stone-950 
+        <a href={phoneHref} data-conversion-cta class="inline-flex h-10 w-42 shrink-0 items-center justify-center rounded-full bg-stone-950 
         px-5 text-md font-semibold text-[#f7f1e8] transition hover:bg-stone-800">
           {t('nav.call')}
         </a>
@@ -124,7 +108,7 @@ const missionLines = t('hero.mission.text').split('\n');
         <a href="#contacts" class="rounded-2xl px-4 py-3 transition hover:bg-white/60">{t('nav.contacts')}</a>
       </nav>
       <div class="mt-4 flex items-center justify-between gap-3 border-t border-stone-900/10 pt-4">
-        <a href={phoneHref} class="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-stone-950 px-5 text-sm font-semibold text-[#f7f1e8] transition hover:bg-stone-800">
+        <a href={phoneHref} data-conversion-cta class="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-stone-950 px-5 text-sm font-semibold text-[#f7f1e8] transition hover:bg-stone-800">
           {t('nav.call')}
         </a>
         <div class="flex items-center gap-1 rounded-full border border-stone-900/15 bg-white/50 p-1">
@@ -166,7 +150,7 @@ const missionLines = t('hero.mission.text').split('\n');
             <a href="#contacts" class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-stone-950 px-7 text-base font-semibold text-[#f7f1e8] transition hover:bg-stone-800">
               {t('hero.cta')}
             </a>
-            <a href={phoneHref} class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-stone-900/20 bg-white/40 px-7 text-base font-semibold text-stone-950 transition hover:bg-white/70">
+            <a href={phoneHref} data-conversion-cta class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-stone-900/20 bg-white/40 px-7 text-base font-semibold text-stone-950 transition hover:bg-white/70">
               <img src={handset} alt="" class="h-6 w-auto" />{phoneNumber}
             </a>
           </div>
@@ -293,15 +277,15 @@ const missionLines = t('hero.mission.text').split('\n');
               {t('contacts.sub')}
             </p>
             <div class="mt-8 flex flex-col gap-3 sm:flex-row flex-wrap">
-              <a href={phoneHref} class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#f7f1e8] px-7 text-base font-semibold text-stone-950 transition hover:bg-white">
+              <a href={phoneHref} data-conversion-cta class="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#f7f1e8] px-7 text-base font-semibold text-stone-950 transition hover:bg-white">
                 <img src={handset} alt="" class="h-6 w-auto" />
                 {t('nav.call')}
               </a>
-              <a href={telegramHref} class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 text-base font-semibold text-white transition hover:bg-white/15">
+              <a href={telegramHref} data-conversion-cta class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 text-base font-semibold text-white transition hover:bg-white/15">
                 <img src={Telegram} alt="" class="h-6 w-auto" />
                 Telegram
               </a>
-              <a href={whatsAppHref} target="_blank" rel="noopener noreferrer" class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 text-base font-semibold text-white transition hover:bg-white/15">
+              <a href={whatsAppHref} data-conversion-cta target="_blank" rel="noopener noreferrer" class="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-7 text-base font-semibold text-white transition hover:bg-white/15">
                 <img src={Whatsapp} alt="" class="h-6 w-auto" />
                 WhatsApp
               </a>
@@ -350,9 +334,6 @@ const missionLines = t('hero.mission.text').split('\n');
       <p>{t('footer.tagline')}</p>
     </div>
   </footer>
-
-  </body>
-</html>
 
 <style>
   @keyframes fadeUp {
