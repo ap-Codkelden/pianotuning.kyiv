@@ -158,9 +158,9 @@ const missionLines = t('hero.mission.text').split('\n');
         <div style="animation: fadeScale 0.8s ease 0.1s both;">
           <div class="rounded-[2.2rem] border border-stone-900/10 bg-stone-950 p-2 shadow-2xl shadow-stone-950/25 lg:-mt-52">
             <div class="relative min-h-90 overflow-hidden rounded-[1.7rem] bg-linear-to-br from-stone-800 via-stone-950 to-black p-6 text-white md:p-8">
-              <img src={pianoManImage} alt="" class="absolute inset-0 h-full w-full object-cover object-center opacity-75" />
-              <div class="absolute inset-0 bg-linear-to-br from-black/60 via-stone-950/35 to-black/75 pointer-events-none"></div>
-              <div class="absolute inset-0 opacity-90 pointer-events-none" style="background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.17), transparent 30%), radial-gradient(circle at 78% 72%, rgba(217,164,65,0.35), transparent 34%);"></div>
+              <img src={pianoManImage} alt="" class="absolute inset-0 h-full w-full object-cover object-center opacity-100" />
+              <div class="absolute inset-0 bg-linear-to-br from-black/25 via-stone-950/10 to-black/35 pointer-events-none"></div>
+              <div class="absolute inset-0 opacity-70 pointer-events-none" style="background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.17), transparent 30%), radial-gradient(circle at 78% 72%, rgba(217,164,65,0.28), transparent 34%);"></div>
               <div class="absolute bottom-6 right-6 z-10 flex justify-end md:bottom-8 md:right-8">
                 <div class="max-w-md px-1 py-2 text-right">
                   <p class="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200/90">{t('hero.mission.label')}</p>
@@ -353,65 +353,78 @@ const missionLines = t('hero.mission.text').split('\n');
     opacity: 1;
     transform: translateY(0);
   }
+  /*
+   * Header & logo shrink — pure CSS scroll-driven animation.
+   *
+   * animation-timeline: scroll(root) ties the keyframes to page scroll
+   * position over the first 180px. animation-fill-mode: both means the
+   * "from" state applies at scroll=0 — which matches the existing Tailwind
+   * min-h-50 (12.5rem) on the header, so there is no jump on load.
+   *
+   * Browsers without support (Firefox < 110, Safari < 17.2) simply show
+   * the header at its natural Tailwind size with no animation — usable fallback.
+   */
   .site-header {
     overflow-anchor: none;
-    /* Promote the header to its own GPU compositing layer so its background
-       and shadow repaints stay isolated from the rest of the page. translateZ
-       is the cross-browser hint for this and helps avoid the flicker/tremor
-       seen on Android when the address bar resizes the viewport mid-scroll. */
+    /* GPU layer hint — isolates repaints from the page */
     transform: translateZ(0);
-    transition:
-      min-height 320ms ease,
-      background-color 260ms ease,
-      box-shadow 260ms ease;
-    /* Only hint compositable properties. min-height is a layout property and
-       can't be GPU-composited, so listing it in will-change wastes memory and
-       can make things worse — left out deliberately. */
     will-change: background-color, box-shadow;
   }
-  .site-header-inner {
-    transition:
-      min-height 320ms ease,
-      padding-top 320ms ease,
-      padding-bottom 320ms ease;
-  }
-  /*
-   * Logo shrink animation (transform-based).
-   * The logo stays at its full rendered size (h-50 w-50 = 12.5rem) at all
-   * times — we never animate its width/height, because those are layout
-   * properties and animating them forces a reflow of the whole header on every
-   * frame (the main cause of scroll jank/tremor on Android, where the browser
-   * is already reflowing as its address bar collapses).
-   * Instead we shrink it visually with `transform: scale()`, which the browser
-   * can run on the compositor (GPU) without touching layout. 6.25rem / 12.5rem
-   * = 0.5, so the scrolled state scales to half size. `transform-origin: top
-   * center` makes it shrink toward the top of the bar rather than the middle.
-   * `will-change`/`backface-visibility` keep it on its own GPU layer for
-   * smooth, tremor-free animation.
-   */
   .site-logo-shell,
   .site-logo {
     transform-origin: top center;
-    transition: transform 320ms ease;
     will-change: transform;
     backface-visibility: hidden;
   }
-  .site-header.is-scrolled {
-    min-height: 5.5rem;
-    background-color: rgba(247, 241, 232, 0.84);
-    box-shadow: 0 18px 42px rgba(28, 25, 23, 0.08);
+
+  @supports (animation-timeline: scroll()) {
+    .site-header {
+      animation: shrink-header linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 180px;
+    }
+    .site-header-inner {
+      animation: shrink-header-inner linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 180px;
+    }
+    .site-logo-shell,
+    .site-logo {
+      animation: shrink-logo linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0px 180px;
+    }
   }
-  .site-header.is-scrolled .site-header-inner {
-    min-height: 5.5rem;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+
+  @keyframes shrink-header {
+    from {
+      min-height: 12.5rem;
+      background-color: rgba(247, 241, 232, 0.50);
+      box-shadow: 0 18px 42px rgba(28, 25, 23, 0);
+    }
+    to {
+      min-height: 5.5rem;
+      background-color: rgba(247, 241, 232, 0.84);
+      box-shadow: 0 18px 42px rgba(28, 25, 23, 0.08);
+    }
   }
-  .site-header.is-scrolled .site-logo-shell,
-  .site-header.is-scrolled .site-logo {
-    /* 0.5 == 6.25rem / 12.5rem, matching the previous shrunk size, but done
-       on the compositor instead of via layout-triggering width/height. */
-    transform: scale(0.5);
+  @keyframes shrink-header-inner {
+    from {
+      min-height: 12.5rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+    to {
+      min-height: 5.5rem;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
   }
+  @keyframes shrink-logo {
+    from { transform: scale(1); }
+    to   { transform: scale(0.5); }
+  }
+
   .mobile-menu {
     opacity: 0;
     pointer-events: none;
@@ -423,14 +436,14 @@ const missionLines = t('hero.mission.text').split('\n');
     pointer-events: auto;
     transform: translateY(0);
   }
-  /* Respect users who prefer reduced motion: disable the scroll-driven
-     transitions entirely. This is both an accessibility courtesy and a way to
-     sidestep any residual animation jank for those users. */
+  /* Respect users who prefer reduced motion: disable all animations. */
   @media (prefers-reduced-motion: reduce) {
     .site-header,
     .site-header-inner,
     .site-logo-shell,
-    .site-logo,
+    .site-logo {
+      animation: none !important;
+    }
     .reveal,
     .mobile-menu {
       transition: none !important;
@@ -439,54 +452,9 @@ const missionLines = t('hero.mission.text').split('\n');
 </style>
 
 <script>
-  // --- Header & logo shrink-on-scroll -------------------------------------
-  // Cache the elements we interact with. `header` is the sticky top bar whose
-  // `.is-scrolled` class drives the CSS that shrinks the logo and compacts the
-  // bar (see the `.site-header.is-scrolled` rules in the <style> block above).
-  const header = document.querySelector<HTMLElement>('[data-site-header]');
   const mobileMenu = document.querySelector<HTMLElement>('[data-mobile-menu]');
   const mobileMenuButton = document.querySelector<HTMLButtonElement>('[data-mobile-menu-button]');
 
-  // Tracks whether the header is currently in its compact (scrolled) state, so
-  // we only toggle the class when the state actually changes.
-  let isHeaderCompact = false;
-  // Holds the pending requestAnimationFrame id (0 = none scheduled). Used to
-  // coalesce rapid scroll events into at most one update per frame.
-  let headerFrame = 0;
-
-  const updateHeader = () => {
-    if (!header) return;
-
-    // Hysteresis: the threshold to ENTER compact mode (42px) is higher than the
-    // threshold to LEAVE it (18px). The gap between the two values prevents the
-    // header from flickering back and forth when the user hovers right around a
-    // single boundary. Which threshold applies depends on the current state.
-    const shouldBeCompact = isHeaderCompact
-      ? window.scrollY > 18   // already compact: stay compact until above 18px
-      : window.scrollY > 42;  // expanded: only compact once past 42px
-
-    // Nothing to do if the desired state matches the current one — this avoids
-    // redundant class toggles (and therefore redundant style recalculation).
-    if (shouldBeCompact === isHeaderCompact) return;
-
-    isHeaderCompact = shouldBeCompact;
-    // Toggling this class is the single trigger for all the scrolled-state CSS:
-    // the bar height, padding, background, shadow, and the logo size.
-    header.classList.toggle('is-scrolled', isHeaderCompact);
-  };
-
-  // Scroll events can fire many times per frame. Rather than running
-  // updateHeader on every one, we schedule a single update on the next animation
-  // frame and ignore further scroll events until that frame runs. This keeps
-  // scrolling smooth and avoids layout thrashing.
-  const scheduleHeaderUpdate = () => {
-    if (headerFrame) return; // an update is already queued for this frame
-
-    headerFrame = window.requestAnimationFrame(() => {
-      headerFrame = 0;
-      updateHeader();
-    });
-  };
   // --- Mobile menu --------------------------------------------------------
   // Single source of truth for opening/closing the mobile nav. Toggling
   // `.is-open` drives the menu's CSS show/hide animation, and we keep
@@ -496,12 +464,6 @@ const missionLines = t('hero.mission.text').split('\n');
     mobileMenuButton?.setAttribute('aria-expanded', String(isOpen));
   };
 
-  // Run once on load so the header is correct if the page is opened already
-  // scrolled (e.g. a refresh partway down, or navigating to an #anchor).
-  updateHeader();
-  // `passive: true` tells the browser we never call preventDefault here, so it
-  // can keep scrolling on its own thread for better performance.
-  window.addEventListener('scroll', scheduleHeaderUpdate, { passive: true });
   // Hamburger button toggles the menu based on its current open/closed state.
   mobileMenuButton?.addEventListener('click', () => {
     setMobileMenuOpen(!mobileMenu?.classList.contains('is-open'));
