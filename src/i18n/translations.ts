@@ -22,7 +22,7 @@ export const ui = {
     // Hero
     'hero.badge': 'Виїзд до клієнта — Київ та Київська область',
     'hero.h1': 'Налаштування фортепіано та роялів з точністю, яку чути',
-    'hero.sub': 'Повертаємо інструменту чисте звучання, рівний стрій і комфортну гру. Досвід роботи з 1998 року.',
+    'hero.sub': 'Повертаємо інструменту чисте звучання, рівний стрій і комфортну гру. Відновлюємо безнадійні інструменти. Досвід роботи з 1998 року.',
     'hero.cta': 'Записатися на налаштування',
     'hero.mission.label': 'Наша місія',
     'hero.mission.text': 'У кожній ноті — сила дії,\nу кожнім акорді — злет.\nМи наближаємо до мрії,\nщоб Ви ішли упевнено вперед.',
@@ -73,7 +73,7 @@ export const ui = {
     // Hero
     'hero.badge': 'On-site visits — Kyiv & Kyiv region',
     'hero.h1': 'Piano & Grand Piano Tuning with Precision You Can Hear',
-    'hero.sub': 'We restore your instrument\'s pure tone, even pitch, and comfortable playability. Practicing since 1998.',
+    'hero.sub': 'We restore your instrument\'s pure tone, even pitch, and comfortable playability. We bring neglected pianos back to life. Practicing since 1998.',
     'hero.cta': 'Book a Tuning',
     'hero.mission.label': 'Our mission',
     'hero.mission.text': 'In every note, the power to move;\nin every chord, a rise.\nWe bring your dream a little closer,\nso you may step ahead with confidence.',
