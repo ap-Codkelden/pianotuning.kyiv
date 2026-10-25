@@ -16,7 +16,7 @@
     "@fontsource/manrope": "^5.2.8",
     "@fontsource/marck-script": "^5.2.8",
     "@tailwindcss/vite": "^4.3.0",
-    "astro": "^6.4.2",
+    "astro": "^7.4.2",
     "tailwindcss": "^4.3.0"
   }
 }
